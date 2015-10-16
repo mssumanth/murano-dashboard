@@ -39,7 +39,7 @@ LOG = logging.getLogger(__name__)
 
 
 class IndexView(tables.DataTableView):
-    table_class = env_tables.EnvironmentsTable
+    table_class = env_tables.BranchesTable
     template_name = 'environments/index.html'
 
     def get_data(self):
@@ -78,25 +78,6 @@ class EnvironmentDetails(tabs.TabbedTableView):
             exceptions.handle(self.request, msg, redirect=redirect)
         context['tenant_id'] = self.request.session['token'].tenant['id']
         return context
-
-    def get_tabs(self, request, *args, **kwargs):
-        environment_id = self.kwargs['environment_id']
-        ns_url = "horizon:murano:environments:index"
-        try:
-            deployments = api.deployments_list(self.request,
-                                               environment_id)
-        except exc.HTTPException:
-            msg = _('Unable to retrieve list of deployments')
-            exceptions.handle(self.request, msg, redirect=reverse(ns_url))
-
-        logs = []
-        if deployments:
-            last_deployment = deployments[0]
-            logs = api.deployment_reports(self.request,
-                                          environment_id,
-                                          last_deployment.id)
-        return self.tab_group_class(request, logs=logs,
-                                    **kwargs)
 
 
 class DetailServiceView(tabs.TabbedTableView):
@@ -139,9 +120,9 @@ class DetailServiceView(tabs.TabbedTableView):
 class CreateEnvironmentView(views.ModalFormView):
     form_class = env_forms.CreateEnvironmentForm
     form_id = 'create_environment_form'
-    modal_header = _('Create Environment')
+    modal_header = _('Create Branch')
     template_name = 'environments/create.html'
-    page_title = _('Create Environment')
+    page_title = _('Create Branch')
     context_object_name = 'environment'
     submit_label = _('Create')
     submit_url = reverse_lazy('horizon:murano:environments:create_environment')

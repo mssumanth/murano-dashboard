@@ -44,6 +44,7 @@ TYPES.update({
     'password': fields.PasswordField,
     'integer': fields.IntegerField,
     'databaselist': fields.DatabaseListField,
+    'table': fields.TableField,
     'flavor': fields.FlavorChoiceField,
     'keypair': fields.KeyPairChoiceField,
     'image': fields.ImageChoiceField,

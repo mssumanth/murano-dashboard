@@ -59,9 +59,9 @@ class AddApplication(tables.LinkAction):
         return '{0}?next={1}'.format(base_url, redirect_url)
 
 
-class CreateEnvironment(tables.LinkAction):
-    name = 'CreateEnvironment'
-    verbose_name = _('Create Environment')
+class CreateBranch(tables.LinkAction):
+    name = 'CreateBranch'
+    verbose_name = _('Create Branch')
     url = 'horizon:murano:environments:create_environment'
     classes = ('btn-launch', 'add_env')
     redirect_url = "horizon:project:murano:environments"
@@ -83,7 +83,7 @@ class CreateEnvironment(tables.LinkAction):
 
 class DeleteEnvironment(tables.DeleteAction):
     data_type_singular = _('Environment')
-    data_type_plural = _('Environments')
+    data_type_plural = _('Branches')
     action_past = _('Start Deleting')
     redirect_url = "horizon:project:murano:environments"
 
@@ -111,7 +111,7 @@ class AbandonEnvironment(tables.DeleteAction):
     action_present = _('Abandon')
     action_past = _('Abandoned')
     data_type_singular = _('Environment')
-    data_type_plural = _('Environments')
+    data_type_plural = _('Branches')
     redirect_url = "horizon:project:murano:environments"
 
     def allowed(self, request, environment):
@@ -143,11 +143,11 @@ class EditEnvironment(tables.LinkAction):
     icon = 'edit'
 
     def allowed(self, request, environment):
-        """Allow edit environment only when status not deploying and deleting.
-        """
         status = getattr(environment, 'status', None)
-        return status not in [consts.STATUS_ID_DEPLOYING,
-                              consts.STATUS_ID_DELETING]
+        if status not in [consts.STATUS_ID_DEPLOYING]:
+            return True
+        else:
+            return False
 
 
 class DeleteService(tables.DeleteAction):
@@ -270,7 +270,7 @@ class UpdateServiceRow(tables.Row):
         return api.service_get(request, environment_id, service_id)
 
 
-class EnvironmentsTable(tables.DataTable):
+class BranchesTable(tables.DataTable):
     name = tables.Column('name',
                          link='horizon:murano:environments:services',
                          verbose_name=_('Name'))
@@ -283,12 +283,12 @@ class EnvironmentsTable(tables.DataTable):
 
     class Meta:
         name = 'murano'
-        verbose_name = _('Environments')
+        verbose_name = _('Branches')
         template = 'environments/_data_table.html'
         row_class = UpdateEnvironmentRow
         status_columns = ['status']
-        no_data_message = _('NO ENVIRONMENTS')
-        table_actions = (CreateEnvironment,)
+        no_data_message = _('NO BRANCHES')
+        table_actions = (CreateBranch,)
         row_actions = (ShowEnvironmentServices, DeployEnvironment,
                        EditEnvironment, DeleteEnvironment, AbandonEnvironment)
         multi_select = False

@@ -48,6 +48,9 @@ from muranodashboard.environments import api as env_api
 from muranodashboard.environments import consts
 from muranodashboard.packages import consts as pkg_consts
 
+import traceback
+from muranodashboard.catalog import flotilla_restful as flo_api
+ 
 LOG = logging.getLogger(__name__)
 ALL_CATEGORY_NAME = 'All'
 LATEST_APPS_QUEUE_LIMIT = 3
@@ -216,6 +219,15 @@ def deploy(request, environment_id, app_id,
 @clear_forms_data
 @auth_dec.login_required
 def quick_deploy(request, app_id):
+    try:
+        try:
+            app = api.muranoclient(request).packages.get(app_id)
+        except exc.HTTPNotFound:
+            pass
+        flo_api.deployApp(app)
+    except Exception:
+        print traceback.format_exc()
+        exceptions.handle(request, _("Unable to deploy service"))
     return deploy(request, app_id=app_id, environment_id=None,
                   do_redirect=True, drop_wm_form=True)
 
